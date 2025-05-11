@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/EggyByte-Technology/trading-system-demo-frontend.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/EggyByte-Technology/trading-system-demo-backend.git
