@@ -1,0 +1,25 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your Trading System is now deployed with subdomain-based routing.
+You can access your services at the following URLs:
+
+{{- $domain := .Values.global.domain | default "trading-system.local" }}
+{{- range $serviceName, $serviceConfig := .Values.services }}
+- {{ $serviceName }} Service: http://{{ $serviceName }}.{{ $domain }}
+{{- end }}
+
+- WebSocket Service: ws://ws.{{ $domain }}
+
+To test your connection to the services:
+{{- range $serviceName, $serviceConfig := .Values.services }}
+  {{ $serviceName }}:
+    curl -v http://{{ $serviceName }}.{{ $domain }}/health
+{{- end }}
+
+NOTE: You may need to add DNS entries or modify your hosts file to resolve these domain names.
+
+For local testing, add the following entries to your /etc/hosts file:
+{{- range $serviceName, $serviceConfig := .Values.services }}
+127.0.0.1    {{ $serviceName }}.{{ $domain }}
+{{- end }}
+127.0.0.1    ws.{{ $domain }} 

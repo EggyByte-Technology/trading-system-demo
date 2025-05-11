@@ -1,0 +1,39 @@
+{{- if .Values.hpa.enabled -}}
+#
+# Service HPAs using standard metrics-server metrics from kube-system namespace
+#
+{{- range $service, $serviceConfig := .Values.services }}
+{{- if $serviceConfig.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $serviceConfig.name }}-hpa
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $serviceConfig.name }}
+  minReplicas: {{ $serviceConfig.hpa.minReplicas }}
+  maxReplicas: {{ $serviceConfig.hpa.maxReplicas }}
+  metrics:
+  {{- if $.Values.hpa.metrics.cpu.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ $.Values.hpa.metrics.cpu.targetAverageUtilization }}
+  {{- end }}
+  {{- if $.Values.hpa.metrics.memory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ $.Values.hpa.metrics.memory.targetAverageUtilization }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end -}} 

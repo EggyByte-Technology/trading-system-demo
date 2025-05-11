@@ -1,0 +1,49 @@
+{{- $domain := .Values.global.domain | default "trading-system.local" }}
+
+# Generate individual VirtualServices for each backend service
+# This creates subdomain-based routing where xxx.trading-system.local routes to xxx service
+{{- range $serviceName, $serviceConfig := .Values.services }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $serviceName | lower }}-vs
+  namespace: {{ $.Values.global.namespace }}
+  annotations:
+    kubernetes.io/description: "Routes {{ $serviceConfig.name }}.{{ $domain }} to {{ $serviceConfig.name }} service"
+spec:
+  hosts:
+  - {{ $serviceConfig.name }}.{{ $domain }}
+  gateways:
+  - {{ $.Values.global.istio.gateway }}
+  http:
+  - route:
+    - destination:
+        host: {{ $serviceConfig.name }}
+        port:
+          number: {{ $serviceConfig.port }}
+{{- end }}
+
+# Special dedicated WebSocket VirtualService
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: websocket-vs
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    kubernetes.io/description: "Routes WebSocket connections to notification service"
+spec:
+  hosts:
+  - ws.{{ $domain }}
+  gateways:
+  - {{ .Values.global.istio.gateway }}
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: {{ .Values.services.notificationService.name }}
+        port:
+          number: {{ .Values.services.notificationService.port }} 

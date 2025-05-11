@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Values.global.istio.gateway }}
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    kubernetes.io/description: "Istio gateway for Trading System micro-services"
+spec:
+  selector:
+    istio: ingress # Use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*.{{ .Values.global.domain }}"  # Accept all subdomains
+    - "{{ .Values.global.domain }}"    # Accept the base domain as well
+    {{- if .Values.istio.gateway.tls.enabled }}
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - "*.{{ .Values.global.domain }}"  # Accept all subdomains
+    - "{{ .Values.global.domain }}"    # Accept the base domain as well
+    tls:
+      mode: SIMPLE
+      credentialName: {{ .Values.global.domain }}-cert # This should match the Certificate resource name
+    {{- end }} 

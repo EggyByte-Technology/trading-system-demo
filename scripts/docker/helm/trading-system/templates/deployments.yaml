@@ -1,0 +1,122 @@
+{{- define "trading-system.deployment" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ .namespace }}
+  labels:
+    app: {{ .serviceName }}
+    app.kubernetes.io/name: trading-system
+    app.kubernetes.io/component: service
+    app.kubernetes.io/part-of: trading-system
+spec:
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      app: {{ .serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .serviceName }}
+        app.kubernetes.io/name: trading-system
+        app.kubernetes.io/component: service
+        app.kubernetes.io/part-of: trading-system
+    spec:
+      containers:
+      - name: {{ .serviceName }}
+        image: "{{ .imageRepository }}/{{ .image }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        ports:
+        - containerPort: {{ .containerPort }}
+        env:
+        # MongoDB Connection settings
+        {{- include "trading-system.mongodbEnv" $ | nindent 8 }}
+        
+        # JWT Settings
+        {{- include "trading-system.jwtEnv" $ | nindent 8 }}
+        
+        # Service URLs
+        {{- include "trading-system.serviceUrlsEnv" $ | nindent 8 }}
+        
+        # General Settings
+        - name: ASPNETCORE_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: trading-system-config
+              key: ASPNETCORE_ENVIRONMENT
+        # - name: ASPNETCORE_URLS
+        #   value: "http://+:{{ .containerPort }}"
+        
+        # Service-specific environment variables
+        {{- if .env }}
+        {{- range .env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        {{- end }}
+        
+        # Health checks - only add if enabled for this service
+        {{- if .healthCheck.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .healthCheck.readiness.path }}
+            port: {{ .containerPort }}
+          initialDelaySeconds: {{ .healthCheck.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .healthCheck.readiness.periodSeconds }}
+          timeoutSeconds: {{ .healthCheck.readiness.timeoutSeconds }}
+          failureThreshold: {{ .healthCheck.readiness.failureThreshold }}
+        livenessProbe:
+          httpGet:
+            path: {{ .healthCheck.liveness.path }}
+            port: {{ .containerPort }}
+          initialDelaySeconds: {{ .healthCheck.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .healthCheck.liveness.periodSeconds }}
+          timeoutSeconds: {{ .healthCheck.liveness.timeoutSeconds }}
+          failureThreshold: {{ .healthCheck.liveness.failureThreshold }}
+        {{- end }}
+        
+        resources:
+          {{- toYaml .resources | nindent 12 }}
+{{- end -}}
+
+{{- /* Loop through all services and create deployments */ -}}
+{{- range $serviceName, $serviceConfig := .Values.services }}
+---
+{{- /* Safely handle healthCheck with proper nil checks */ -}}
+{{- $healthCheckEnabled := $.Values.common.healthCheck.enabled -}}
+{{- if hasKey $serviceConfig "healthCheck" -}}
+  {{- if hasKey $serviceConfig.healthCheck "enabled" -}}
+    {{- $healthCheckEnabled = $serviceConfig.healthCheck.enabled -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $healthCheck := dict 
+  "enabled" $healthCheckEnabled
+  "readiness" $.Values.common.healthCheck.readiness
+  "liveness" $.Values.common.healthCheck.liveness
+-}}
+
+{{- /* Override readiness and liveness if specified in service config */ -}}
+{{- if hasKey $serviceConfig "healthCheck" -}}
+  {{- if hasKey $serviceConfig.healthCheck "readiness" -}}
+    {{- $_ := set $healthCheck "readiness" $serviceConfig.healthCheck.readiness -}}
+  {{- end -}}
+  {{- if hasKey $serviceConfig.healthCheck "liveness" -}}
+    {{- $_ := set $healthCheck "liveness" $serviceConfig.healthCheck.liveness -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $deployment := dict 
+  "serviceName" $serviceConfig.name 
+  "namespace" $.Values.global.namespace 
+  "replicas" (default $.Values.common.replicas $serviceConfig.replicas) 
+  "imageRepository" $.Values.global.imageRepository 
+  "image" $serviceConfig.image 
+  "pullPolicy" $.Values.common.image.pullPolicy 
+  "containerPort" $serviceConfig.containerPort 
+  "resources" (default $.Values.common.resources $serviceConfig.resources)
+  "healthCheck" $healthCheck
+  "env" (default $.Values.common.env $serviceConfig.env)
+-}}
+{{ include "trading-system.deployment" $deployment }}
+{{- end }}

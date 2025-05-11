@@ -1,0 +1,28 @@
+# Trading System ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trading-system-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  # JWT Settings
+  JWT_SECRET_KEY: "{{ .Values.jwtSettings.secretKey }}"
+  JWT_ISSUER: "{{ .Values.jwtSettings.issuer }}"
+  JWT_AUDIENCE: "{{ .Values.jwtSettings.audience }}"
+  JWT_EXPIRATION_MINUTES: "{{ .Values.jwtSettings.expirationMinutes }}"
+  JWT_REFRESH_TOKEN_EXPIRATION_DAYS: "{{ .Values.jwtSettings.refreshTokenExpirationDays }}"
+  
+  # Environment
+  ASPNETCORE_ENVIRONMENT: "Production"
+  
+  # Service URLs
+  IDENTITY_SERVICE_URL: "http://{{ .Values.services.identityService.name }}:{{ .Values.services.identityService.port }}"
+  ACCOUNT_SERVICE_URL: "http://{{ .Values.services.accountService.name }}:{{ .Values.services.accountService.port }}"
+  MARKET_DATA_SERVICE_URL: "http://{{ .Values.services.marketDataService.name }}:{{ .Values.services.marketDataService.port }}"
+  TRADING_SERVICE_URL: "http://{{ .Values.services.tradingService.name }}:{{ .Values.services.tradingService.port }}"
+  RISK_SERVICE_URL: "http://{{ .Values.services.riskService.name }}:{{ .Values.services.riskService.port }}"
+  NOTIFICATION_SERVICE_URL: "http://{{ .Values.services.notificationService.name }}:{{ .Values.services.notificationService.port }}"
+  
+  # MongoDB Connection - External MongoDB
+  MONGODB_CONNECTION_STRING: "{{ .Values.mongodb.connectionString }}"
+  MONGODB_AUTH_DATABASE: "{{ .Values.mongodb.auth.authenticationDatabase }}" 

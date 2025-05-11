@@ -1,0 +1,33 @@
+{{- define "trading-system.service" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ .namespace }}
+  labels:
+    app: {{ .serviceName }}
+    service: {{ .serviceName }}
+    app.kubernetes.io/component: service
+    app.kubernetes.io/part-of: trading-system
+spec:
+  selector:
+    app: {{ .serviceName }}
+  ports:
+  - port: {{ .port }}
+    targetPort: {{ .containerPort }}
+    protocol: TCP
+    name: http
+{{- end -}}
+
+{{- /* Loop through all services and create service definitions */ -}}
+{{- range $serviceName, $serviceConfig := .Values.services }}
+---
+{{- $service := dict 
+  "serviceName" $serviceConfig.name
+  "name" $serviceConfig.name 
+  "namespace" $.Values.global.namespace 
+  "port" $serviceConfig.port 
+  "containerPort" $serviceConfig.containerPort
+-}}
+{{ include "trading-system.service" $service }}
+{{- end }} 

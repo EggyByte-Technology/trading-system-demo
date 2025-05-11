@@ -1,0 +1,10 @@
+apiVersion: v2
+name: trading-system
+description: A Helm chart for Trading System microservices using Istio
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+# dependencies:
+#   - name: prometheus
+#     version: "27.12.0"
+#     repository: "file://./charts/prometheus"

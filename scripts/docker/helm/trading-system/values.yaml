@@ -1,0 +1,197 @@
+# Global configuration for Trading System
+global:
+  domain: trading-system.local
+  namespace: trading-system
+  istio:
+    gateway: trading-system-gateway
+  imageRepository: registry.cn-shanghai.aliyuncs.com/eggybyte-trading-system
+
+# MongoDB configuration - 使用外部MongoDB
+mongodb:
+  # 外部MongoDB连接字符串
+  connectionString: "mongodb://root:aB8zD3fG5hJ7kL9mN1pQ3rS5tV7xY9zAcEgIkMoQs@mongodb-sharded.database.svc.cluster.local:27017/admin?authMechanism=SCRAM-SHA-256"
+  auth:
+    authenticationDatabase: admin
+
+# HPA configuration for services - uses metrics-server only
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    cpu:
+      enabled: true
+      targetAverageUtilization: 70
+    memory:
+      enabled: true
+      targetAverageUtilization: 80
+
+# Metrics-server configuration
+metricsServer:
+  # Using cluster's metrics-server for HPA metrics
+
+# JWT Authentication settings
+jwtSettings:
+  secretKey: "TradingSystem_SecretKey_202505092114"
+  issuer: "TradingSystem"
+  audience: "TradingSystemClients"
+  expirationMinutes: 60
+  refreshTokenExpirationDays: 7
+
+# Common configurations for all services
+common:
+  image:
+    pullPolicy: Always
+  replicas: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # Default health check settings - can be overridden per service
+  healthCheck:
+    enabled: true
+    readiness:
+      path: /health
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      timeoutSeconds: 5
+      failureThreshold: 3
+  # Default environment variables for all services (can be overridden per service)
+  env: []
+
+# Service-specific configurations
+services:
+  identityService:
+    name: identity
+    path: /identity
+    port: 8080
+    containerPort: 8080
+    image: identity:latest
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+    metrics:
+      enabled: true
+      endpoints:
+        - path: /metrics
+          port: http
+    env: []
+      
+  accountService:
+    name: account
+    path: /account
+    port: 8080
+    containerPort: 8080
+    image: account:latest
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+    metrics:
+      enabled: true
+    env: []
+
+  marketDataService:
+    name: market-data
+    path: /market-data
+    port: 8080
+    containerPort: 8080
+    image: market-data:latest
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 5
+    metrics:
+      enabled: true
+    env: []
+
+  tradingService:
+    name: trading
+    path: /trading
+    port: 8080
+    containerPort: 8080
+    image: trading:latest
+    hpa:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+    metrics:
+      enabled: true
+    env: []
+
+  matchMakingService:
+    name: match-making
+    path: /match-making
+    port: 8080
+    containerPort: 8080
+    image: match-making:latest
+    hpa:
+      enabled: false
+    # Disable health checks for the background service
+    healthCheck:
+      enabled: false
+    # Service-specific environment variables
+    env:
+      - name: MatchMaking__DefaultMatchIntervalMs
+        value: "60"
+      - name: MatchMaking__MaxBatchSize
+        value: "100"
+      - name: MatchMaking__EnablePerformanceLogging
+        value: "true"
+      - name: MatchMaking__OrderLockTimeoutSeconds
+        value: "30"
+
+  riskService:
+    name: risk
+    path: /risk
+    port: 8080
+    containerPort: 8080
+    image: risk:latest
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+    metrics:
+      enabled: true
+    env: []
+
+  notificationService:
+    name: notification
+    path: /notification
+    port: 8080
+    containerPort: 8080
+    image: notification:latest
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+    metrics:
+      enabled: true
+    env: []
+
+# WebSocket configuration
+websocket:
+  path: /ws
+  service: notification
+
+# Istio configuration
+istio:
+  gateway:
+    hosts:
+      - "*"
+    tls:
+      enabled: false
+
+# Namespace mapping for cross-namespace references
+namespaceMap:
+  trading-system: trading-system
