@@ -95,9 +95,9 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ### ☸️ Kubernetes Deployment
 
-```bash
+```poweshell
 # Apply Kubernetes configurations
-kubectl apply -f scripts/docker/helm/trading-system/
+.\scripts\helm\helm-install.ps1
 ```
 
 ## 📚 API Documentation
