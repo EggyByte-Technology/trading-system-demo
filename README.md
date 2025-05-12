@@ -1,141 +1,147 @@
-# Trading System Test Tools
+# Trading System Demo
 
-This project provides testing tools for the Trading System API, including unit tests, stress tests, and simulations.
+<div align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/license-Proprietary-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/.NET-9.0-purple.svg" alt=".NET 9.0">
+  <img src="https://img.shields.io/badge/Flutter-3.19+-blue.svg" alt="Flutter 3.19+">
+</div>
 
-## Prerequisites
+## 📋 Overview
 
-- .NET 6 SDK or later
-- Access to the Trading System services (or local development environment)
+A comprehensive trading platform with a microservices backend architecture and a responsive Flutter frontend. This system demonstrates a complete trading ecosystem, including account management, order execution, risk assessment, market data, and real-time notifications.
 
-## Configuration
+## 🏗️ System Architecture
 
-The tool can be configured using:
+The Trading System Demo consists of:
 
-1. `appsettings.json` file (included in the project)
-2. Environment variables
-3. Command-line arguments (highest priority)
+- **Backend**: .NET 9.0 microservices architecture
+- **Frontend**: Flutter-based responsive UI for web and mobile platforms
+- **Infrastructure**: Docker containers, Kubernetes deployment, CI/CD pipeline
 
-### Environment Variables
+### 🔌 Microservices
 
-Service URLs:
-- `IDENTITY_HOST` - Identity Service URL
-- `TRADING_HOST` - Trading Service URL
-- `MARKET_DATA_HOST` - Market Data Service URL
-- `ACCOUNT_HOST` - Account Service URL
-- `RISK_HOST` - Risk Service URL 
-- `NOTIFICATION_HOST` - Notification Service URL
+- **Identity Service**: User authentication and authorization
+- **Account Service**: User account and balance management
+- **Market Data Service**: Real-time and historical market data
+- **Trading Service**: Order management and execution
+- **Risk Service**: Risk assessment and limits management
+- **Notification Service**: Real-time alerts and user notifications
+- **Match Making Service**: Order matching engine
 
-Simulation settings:
-- `SIMULATION_USERS` - Number of users to simulate
-- `SIMULATION_ORDERS_PER_USER` - Number of orders per user
-- `SIMULATION_CONCURRENCY` - Number of concurrent operations
-- `SIMULATION_TIMEOUT` - HTTP request timeout in seconds
-- `SIMULATION_VERBOSE` - Enable verbose output
-- `SIMULATION_MODE` - Simulation mode (random, market)
+## 🚀 Getting Started
 
-Stress test settings:
-- `STRESS_TARGET_SERVICE` - Target service for stress testing
-- `STRESS_CONCURRENCY` - Number of concurrent requests
-- `STRESS_DURATION` - Duration of stress test in seconds
+### 📋 Prerequisites
 
-## Usage
+| Requirement | Version | Purpose |
+|-------------|---------|---------|
+| .NET SDK | 9.0+ | Backend development |
+| Flutter | 3.19+ (with Dart 3.3+) | Frontend development |
+| Docker | Latest | Containerization |
+| Docker Compose | Latest | Multi-container deployment |
+| Kubernetes | Latest | Production deployment (optional) |
+| MongoDB | Latest | Database |
 
-The tool supports three modes: unit testing, stress testing, and simulation.
+### 🔧 Installation
 
-### Unit Testing
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/eggybyte/trading-system-demo.git
+   cd trading-system-demo
+   ```
 
-Run unit tests for all services:
+2. Set up the backend:
+   ```bash
+   cd backend
+   dotnet restore
+   dotnet build
+   ```
 
-```bash
-dotnet run --mode unit
-```
+3. Set up the frontend:
+   ```bash
+   cd frontend/trading_system_frontend
+   flutter pub get
+   ```
 
-Unit tests follow a specific workflow:
-1. Test connectivity to all services
-2. Create a test user
-3. Test authentication (login)
-4. Test API endpoints for each service
+4. Run the development environment:
+   ```bash
+   # From the root directory
+   docker-compose up -d
+   ```
 
-### Stress Testing
+### 💻 Development Mode
 
-Run stress tests against a specific service:
+- **Backend Services**: Each service can be run individually
+  ```bash
+  cd backend/ServiceName
+  dotnet run
+  ```
 
-```bash
-dotnet run --mode stress --target identity --concurrency 50 --duration 60
-```
+- **Frontend**: Run in development mode
+  ```bash
+  cd frontend/trading_system_frontend
+  flutter run -d chrome  # For web
+  flutter run            # For default device
+  ```
 
-This will run a stress test with 50 concurrent requests against the identity service for 60 seconds.
+## 🚢 Deployment
 
-Valid targets: `identity`, `trading`, `market-data`, `account`, `risk`, `notification`, `match-making`
-
-### Trading Simulation
-
-Run a trading simulation:
-
-```bash
-dotnet run --mode simulation --users 20 --orders 100 --concurrency 10 --sim-mode random
-```
-
-This will simulate 20 users each placing 100 orders with 10 concurrent operations using the random mode.
-
-Available simulation modes:
-- `random` - Random order placement
-- `market` - Market order placement
-
-## Command Line Options
-
-```
-Options:
-  -?|--help                      Show help information
-  -m|--mode <MODE>               Test mode: 'unit' for unit tests, 'stress' for stress tests, 'simulation' for trading simulation
-  
-  --identity-host <URL>          URL for Identity Service
-  --trading-host <URL>           URL for Trading Service
-  --market-host <URL>            URL for Market Data Service
-  --account-host <URL>           URL for Account Service
-  --risk-host <URL>              URL for Risk Service
-  --notification-host <URL>      URL for Notification Service
-  
-  -t|--target <SERVICE>          Target service for stress tests
-  -c|--concurrency <NUMBER>      Number of concurrent requests/users
-  -d|--duration <SECONDS>        Duration of stress test in seconds
-  
-  -u|--users <NUMBER>            Number of simulated users
-  -o|--orders <NUMBER>           Number of orders per user
-  -s|--sim-mode <MODE>           Simulation mode: 'random', 'market'
-  -v|--verbose                   Enable verbose logging
-  --timeout <SECONDS>            HTTP request timeout in seconds
-```
-
-## Running in Docker
-
-You can run the test tools in Docker:
+### 🐳 Docker Deployment
 
 ```bash
-docker build -t trading-system-test .
-docker run -e IDENTITY_HOST=http://identity-service:8080 -e TRADING_HOST=http://trading-service:8080 trading-system-test --mode unit
+# Build and run all services
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-## Log Files
+### ☸️ Kubernetes Deployment
 
-All test runs generate log files in the `logs` directory:
+```bash
+# Apply Kubernetes configurations
+kubectl apply -f scripts/docker/helm/trading-system/
+```
 
-- Unit test logs: `unittest_log_TIMESTAMP.txt`
-- Stress test logs: `stress_test_log_TIMESTAMP.txt`
-- Simulation logs: `simulation_log_TIMESTAMP.txt`
-- Detailed logs: `detailed_order_log_TIMESTAMP.txt`, `api_responses_TIMESTAMP.txt`
+## 📚 API Documentation
 
-## Extending the Tool
+The API documentation is available at:
+- Swagger UI: `/` endpoint on each service
 
-To add new tests:
-1. Create a new test class in the `Tests` directory
-2. Inherit from `ApiTestBase`
-3. Add methods with the `[ApiTest]` attribute
-4. Implement test logic using the provided HTTP clients
+## 📁 Project Structure
 
-## Troubleshooting
+```
+trading-system-demo/
+├── backend/                # .NET microservices
+│   ├── AccountService/     # Account management service
+│   ├── CommonLib/          # Shared library and models
+│   ├── IdentityService/    # User authentication service
+│   ├── MarketDataService/  # Market data service
+│   ├── MatchMakingService/ # Order matching engine
+│   ├── NotificationService/# Real-time notifications
+│   ├── RiskService/        # Risk management service
+│   ├── SimulationTest/     # Testing and simulation tools
+│   └── TradingService/     # Trading and order service
+├── frontend/               # Flutter application
+│   └── trading_system_frontend/
+│       ├── lib/            # Application source code
+│       └── ...             # Flutter project structure
+├── logs/                   # System logs
+├── scripts/                # Deployment and utility scripts
+│   ├── docker/             # Docker deployment files
+│   └── istio/              # Service mesh configuration
+└── ...
+```
 
-- Ensure all services are running and accessible
-- Check logs for detailed error information
-- Verify service URLs are correctly configured
-- If tests fail with authentication errors, check user registration/login flow 
+## 👥 Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📜 License
+
+Copyright © 2024-2025 EggyByte Technology. All rights reserved.
+
+This project is proprietary software. No part of this project may be copied, modified, or distributed without the express written permission of EggyByte Technology.
+
+---
+
+<div align="center">
+  <p>Developed by EggyByte Technology • 2024-2025</p>
+</div> 
