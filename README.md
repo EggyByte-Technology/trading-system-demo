@@ -130,10 +130,6 @@ trading-system-demo/
 └── ...
 ```
 
-## 👥 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
 ## 📜 License
 
 Copyright © 2024-2025 EggyByte Technology. All rights reserved.
