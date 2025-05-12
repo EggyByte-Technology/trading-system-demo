@@ -1,5 +1,7 @@
-​**​/bin/
-​**​/obj/
-**/release/
-**/.cursor/
-**/.cursorignore
+bin/
+obj/
+release/
+.cursor/
+.cursorignore
+build/
+logs/

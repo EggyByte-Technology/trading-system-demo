@@ -13,9 +13,10 @@ $services = @(
 )
 
 # Get root directory path (two levels up from script location)
-$rootDir = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
-$builderDir = Join-Path $rootDir "builder"
-$releaseDir = Join-Path $builderDir "release"
+$rootDir = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSCommandPath))
+$scriptsDir = Join-Path $rootDir "scripts"
+$dockerDir = Join-Path $scriptsDir "docker"
+$releaseDir = Join-Path $dockerDir "release"
 
 Write-Host "=== Starting build process for Trading System microservices ==="
 
@@ -46,7 +47,7 @@ foreach ($servicePair in $services) {
     }
     
     # Build Docker image with custom naming
-    $dockerCommand = "docker build --build-arg SERVICE_NAME=$service -t registry.cn-shanghai.aliyuncs.com/eggybyte-trading-system/${imageName}:latest -f '$builderDir/Dockerfile' '$builderDir'"
+    $dockerCommand = "docker build --build-arg SERVICE_NAME=$service -t registry.cn-shanghai.aliyuncs.com/eggybyte-trading-system/${imageName}:latest -f '$dockerDir/Dockerfile' '$dockerDir'"
     Write-Host "Executing: $dockerCommand"
     Invoke-Expression $dockerCommand
     
