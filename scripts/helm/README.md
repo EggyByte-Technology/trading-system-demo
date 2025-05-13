@@ -7,7 +7,7 @@ This directory contains Helm charts for deploying the Trading System application
 The Trading System Helm deployment consists of:
 
 1. **Trading System** - A microservices-based financial trading platform
-2. **Prometheus** - Monitoring and metrics collection
+2. **Metrics Server** - Monitoring and metrics collection
 3. **MongoDB** - Sharded database cluster for Trading System data
 
 ## Prerequisites
@@ -108,32 +108,11 @@ After deployment, you can access:
    # Access at http://localhost:3000 (default username: admin, password: admin)
    ```
 
-2. **Prometheus UI**:
-   ```shell
-   kubectl port-forward -n monitoring svc/prometheus-server 9090:80
-   # Access at http://localhost:9090
-   ```
-
-3. **Trading System API**:
+2. **Trading System API**:
    ```shell
    kubectl port-forward -n trading-system svc/identity 8080:8080
    # Access at http://localhost:8080
    ```
-
-## Troubleshooting
-
-Common issues and solutions:
-
-1. **Prometheus ServiceMonitors not working**
-   - Ensure the `release` label matches between Prometheus and ServiceMonitors
-
-2. **HPAs not scaling based on custom metrics**
-   - Check that Prometheus Adapter is correctly deployed
-   - Verify metrics are properly collected in Prometheus
-
-3. **MongoDB sharding issues**
-   - Check the initialization job logs
-   - Manually trigger the configuration if needed
 
 ## Further Documentation
 

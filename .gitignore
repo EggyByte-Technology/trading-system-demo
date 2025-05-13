@@ -5,3 +5,4 @@ release/
 .cursorignore
 build/
 logs/
+obsolete/
