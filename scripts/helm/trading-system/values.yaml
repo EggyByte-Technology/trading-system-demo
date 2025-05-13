@@ -142,14 +142,18 @@ services:
       enabled: false
     # Service-specific environment variables
     env:
-      - name: MatchMaking__DefaultMatchIntervalMs
-        value: "60"
-      - name: MatchMaking__MaxBatchSize
-        value: "100"
-      - name: MatchMaking__EnablePerformanceLogging
+      - name: MatchingSettings__MatchingIntervalSeconds
+        value: "10"
+      - name: MatchingSettings__OrderLockTimeoutSeconds
+        value: "5"
+      - name: MatchingSettings__EnabledSymbols
+        value: "BTC-USDT,ETH-USDT,BNB-USDT"
+      - name: MatchingSettings__MaxOrdersPerBatch
+        value: "500"
+      - name: MatchingSettings__MaxTradesPerBatch
+        value: "200"
+      - name: MatchingSettings__IsMatchingEnabled
         value: "true"
-      - name: MatchMaking__OrderLockTimeoutSeconds
-        value: "30"
 
   riskService:
     name: risk
