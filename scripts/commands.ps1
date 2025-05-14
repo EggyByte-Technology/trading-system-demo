@@ -31,8 +31,7 @@ helm upgrade --install trading-system builder\helm\trading-system --namespace=tr
 helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo update
 
-// 1. Install the Istio base chart which contains cluster-wide Custom Resource Definitions (CRDs)
-// which must be installed prior to the deployment of the Istio control plane
+// 1. Install the Istio base chart which contains cluster-wide Custom Resource Definitions (CRDs) which must be installed prior to the deployment of the Istio control plane
 helm install istio-base istio/base -n istio-system --set defaultRevision=default --create-namespace
 
 // 2. Validate the CRD installation with the helm ls command
